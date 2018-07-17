@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.lb.imagesigner.MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="55dp"
+        tools:layout_editor_absoluteY="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/editText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:inputType="textPersonName"
+                    android:text="Name" />
+
+                <Button
+                    android:id="@+id/create_signimage_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="创建" />
+
+            </LinearLayout>
+
+
+            <Button
+                android:id="@+id/select_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="选择" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_margin="5dp">
+
+                <TextView
+                    android:id="@+id/power_textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="power" />
+
+                <SeekBar
+                    android:id="@+id/powerseekbar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:max="10" />
+            </LinearLayout>
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:columnCount="4">
+
+                <CheckBox
+                    android:id="@+id/r_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:background="#FFFF0000"
+                    android:text="R" />
+
+                <CheckBox
+                    android:id="@+id/g_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:background="#FF00FF00"
+                    android:text="G" />
+
+                <CheckBox
+                    android:id="@+id/b_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:background="#FF0000FF"
+                    android:text="B" />
+
+                <TextView
+                    android:id="@+id/miaoshu"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="选择需要签名的通道" />
+            </GridLayout>
+
+            <Button
+                android:id="@+id/signButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="签名" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <ImageView
+                    android:id="@+id/source_imageview"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/ic_launcher_background" />
+
+                <ImageView
+                    android:id="@+id/sign_imageview"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentTop="true"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/ic_launcher_background" />
+
+            </RelativeLayout>
+
+            <GridLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:columnCount="1">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/red_chanel_imageview"
+                        android:layout_width="0dp"
+                        android:layout_height="100dp"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:background="#FFFF0000"
+                        android:scaleType="fitCenter" />
+
+                    <ImageView
+                        android:id="@+id/green_chanel_imageview"
+                        android:layout_width="0dp"
+                        android:layout_height="100dp"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:background="#FF00FF00"
+                        android:scaleType="fitCenter" />
+
+                    <ImageView
+                        android:id="@+id/blue_chanel_imageview"
+                        android:layout_width="0dp"
+                        android:layout_height="100dp"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:background="#FF0000FF"
+                        android:scaleType="fitCenter" />
+
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/red_sign_imageview"
+                        android:layout_width="0dp"
+                        android:layout_height="100dp"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:background="#FFFF0000"
+                        android:scaleType="fitCenter" />
+
+                    <ImageView
+                        android:id="@+id/green_sign_imageview"
+                        android:layout_width="0dp"
+                        android:layout_height="100dp"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:background="#FF00FF00"
+                        android:scaleType="fitCenter" />
+
+                    <ImageView
+                        android:id="@+id/blue_sign_imageview"
+                        android:layout_width="0dp"
+                        android:layout_height="100dp"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:background="#FF0000FF"
+                        android:scaleType="fitCenter" />
+
+
+                </LinearLayout>
+
+            </GridLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/dest_imageview"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:background="#FFFFFFFF"
+                    android:scaleType="fitCenter" />
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+</android.support.constraint.ConstraintLayout>
