@@ -30,7 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private static String TAG = "MainActivity";
 
     private Button createButton, selectButton, signButton;
-    private ImageView srcImageView, signImageView, redChanel, blueChanel, greenChanel, signRedImage, signBlueImage, signGreenImage;
+    private ImageView srcImageView, signImageView, redChanelImageView, blueChanelImageView, greenChanelImageView,
+            signRedImageView, signBlueImageView, signGreenImageView, destImageView;
     private EditText editText;
     private CheckBox redcheckbox, greencheckbox, bluecheckbox;
     private static int rgb_check = 0;
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         signButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                rgb_check = 0;
                 if (redcheckbox.isChecked()){
                     rgb_check |= 1 ;
                 }if (greencheckbox.isChecked()){
@@ -94,6 +96,12 @@ public class MainActivity extends AppCompatActivity {
                 powerSeekbar.setMax(powerMax);
                 int power = powerSeekbar.getProgress() * powerMax;
                 JNIUtils.signImage(sourcebitmap,signbitmap,destbitmap,power,rgb_check,redchanelbm,greenchanelbm,bluechanelbm,signredbm,signgreenbm,signbluebm);
+                //JNIUtils.imageEncrypt(sourcebitmap,destbitmap);
+
+                redChanelImageView.setImageBitmap(redchanelbm);
+                greenChanelImageView.setImageBitmap(greenchanelbm);
+                blueChanelImageView.setImageBitmap(bluechanelbm);
+                destImageView.setImageBitmap(destbitmap);
             }
         });
     }
@@ -105,12 +113,13 @@ public class MainActivity extends AppCompatActivity {
 
         srcImageView = (ImageView)findViewById(R.id.source_imageview);
         signImageView = (ImageView)findViewById(R.id.sign_imageview);
-        redChanel = (ImageView)findViewById(R.id.red_chanel_imageview);
-        blueChanel = (ImageView)findViewById(R.id.blue_chanel_imageview);
-        greenChanel = (ImageView)findViewById(R.id.green_chanel_imageview);
-        signRedImage = (ImageView)findViewById(R.id.red_sign_imageview);
-        signBlueImage = (ImageView)findViewById(R.id.blue_sign_imageview);
-        signGreenImage = (ImageView)findViewById(R.id.green_sign_imageview);
+        redChanelImageView = (ImageView)findViewById(R.id.red_chanel_imageview);
+        blueChanelImageView = (ImageView)findViewById(R.id.blue_chanel_imageview);
+        greenChanelImageView = (ImageView)findViewById(R.id.green_chanel_imageview);
+        signRedImageView= (ImageView)findViewById(R.id.red_sign_imageview);
+        signBlueImageView = (ImageView)findViewById(R.id.blue_sign_imageview);
+        signGreenImageView = (ImageView)findViewById(R.id.green_sign_imageview);
+        destImageView = (ImageView)findViewById(R.id.dest_imageview);
 
         editText = (EditText)findViewById(R.id.editText);
 
@@ -160,8 +169,10 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
 
-                    destbitmap = sourcebitmap = BitmapFactory.decodeFile(path);
+                    sourcebitmap = BitmapFactory.decodeFile(path);
+                    destbitmap = Bitmap.createBitmap(sourcebitmap.getWidth(),sourcebitmap.getHeight(), Bitmap.Config.ARGB_8888);
                     srcImageView.setImageBitmap(sourcebitmap);
+                    destImageView.setImageBitmap(destbitmap);
                 }
             }
         }

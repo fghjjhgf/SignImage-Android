@@ -1,4 +1,6 @@
 #pragma once
+#ifndef PT_FFT_H
+#define PT_FFT_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,3 +22,7 @@ void IFFT(_IN complex X[],_OUT complex x[],int N);
 void FFT_2(_IN complex x[],_OUT complex X[],int N_N);
 void IFFT_2(_IN complex X[],_OUT complex x[],int N_N);
 void FFT_2_Shift(_IN complex _in[],_OUT complex _out[],int N_N);
+
+int static ss = 1;
+
+#endif

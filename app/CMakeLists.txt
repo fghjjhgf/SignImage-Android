@@ -14,19 +14,19 @@ cmake_minimum_required(VERSION 3.4.1)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY PROJECTSOURCEDIR/../jniLibs/{ANDROID_ABI})
 
 file(GLOB_RECURSE LIB_FILES src/main/jni/*.*)
+
+# 导入cpp目录下的所有头文件
+include_directories(src/main/jni/)
+
 add_library( # Sets the name of the library.
-      # ����so�ļ�����.
        jniutils
- 
-       # Sets the library as a shared library.
        SHARED
-       # �������so�ļ�Ϊ����.
- 
-       # Provides a relative path to your source file(s).
-       # �������so�ļ�Ϊ����.
-       #src/main/jni/com_lb_imagesigner_JNIUtil_JNIUtils.c
-       #src/main/jni/Pt_FFT.cpp
-       ${LIB_FILES})
+
+       #src/main/jni/com_lb_imagesigner_JNIUtil_JNIUtils.h
+       src/main/jni/com_lb_imagesigner_JNIUtil_JNIUtils.c
+       #src/main/jni/Pt_FFT.c
+       #src/main/jni/Pt_FFT.h
+       )
  
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

@@ -156,7 +156,7 @@
                         android:layout_height="100dp"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="#FFFF0000"
+                        app:srcCompat="@drawable/ic_launcher_background"
                         android:scaleType="fitCenter" />
 
                     <ImageView
@@ -165,7 +165,7 @@
                         android:layout_height="100dp"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="#FF00FF00"
+                        app:srcCompat="@drawable/ic_launcher_background"
                         android:scaleType="fitCenter" />
 
                     <ImageView
@@ -174,7 +174,7 @@
                         android:layout_height="100dp"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="#FF0000FF"
+                        app:srcCompat="@drawable/ic_launcher_background"
                         android:scaleType="fitCenter" />
 
 
@@ -191,7 +191,7 @@
                         android:layout_height="100dp"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="#FFFF0000"
+                        app:srcCompat="@drawable/ic_launcher_background"
                         android:scaleType="fitCenter" />
 
                     <ImageView
@@ -200,7 +200,7 @@
                         android:layout_height="100dp"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="#FF00FF00"
+                        app:srcCompat="@drawable/ic_launcher_background"
                         android:scaleType="fitCenter" />
 
                     <ImageView
@@ -209,7 +209,7 @@
                         android:layout_height="100dp"
                         android:layout_margin="5dp"
                         android:layout_weight="1"
-                        android:background="#FF0000FF"
+                        app:srcCompat="@drawable/ic_launcher_background"
                         android:scaleType="fitCenter" />
 
 
@@ -227,7 +227,7 @@
                     android:layout_height="150dp"
                     android:layout_centerHorizontal="true"
                     android:layout_centerVertical="true"
-                    android:background="#FFFFFFFF"
+                    app:srcCompat="@drawable/ic_launcher_background"
                     android:scaleType="fitCenter" />
 
             </RelativeLayout>

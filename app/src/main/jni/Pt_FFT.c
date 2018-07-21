@@ -1,7 +1,5 @@
 #include "Pt_FFT.h"
 
-
-
 complex complexBuild(float re,float im)
 {
 	complex cx;
