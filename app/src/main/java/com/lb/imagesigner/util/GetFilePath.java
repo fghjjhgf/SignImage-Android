@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.Log;
 
 /**
  * Created by Administrator on 2018/7/15.
@@ -73,7 +74,7 @@ public class GetFilePath {
     * work for version below 4.4
     * */
     public static String getRealPathFromURI(Context context, Uri contentUri) {
-        String res = null;
+        /*String res = null;
         String[] proj = { MediaStore.Images.Media.DATA };
         Cursor cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
         if(null!=cursor&&cursor.moveToFirst()){;
@@ -81,7 +82,23 @@ public class GetFilePath {
             res = cursor.getString(column_index);
             cursor.close();
         }
-        return res;
+        return res;*/
+
+        if(contentUri!=null){
+            String uriStr=contentUri.toString();
+            String path=uriStr.substring(10,uriStr.length());
+            if(path.startsWith("com.sec.android.gallery3d")){
+                Log.e("getRealPathFromURI", "It's auto backup pic path:"+contentUri.toString());
+                return null;
+            }
+        }
+        String[] filePathColumn = { MediaStore.Images.Media.DATA };
+        Cursor cursor = context.getContentResolver().query(contentUri,filePathColumn, null, null, null);
+        cursor.moveToFirst();
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+        String picturePath = cursor.getString(columnIndex);
+        cursor.close();
+        return picturePath;
     }
 
     /**

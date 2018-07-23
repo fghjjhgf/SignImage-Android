@@ -34,12 +34,12 @@ JNIEXPORT void JNICALL Java_com_lb_imagesigner_JNIUtil_JNIUtils_imageEncrypt(
 	}
 
 	if ((ret = AndroidBitmap_getInfo(env, encryptbm, &encryptbitmap)) < 0) {
-    		LOGE("AndroidBitmap_getInfo() failed encryptbitmap! error=%d", ret);
-    		return;
+    	LOGE("AndroidBitmap_getInfo() failed encryptbitmap! error=%d", ret);
+    	return;
     }
 
     if ((ret = AndroidBitmap_lockPixels(env, srcbm, &srcpixels)) < 0) {
-    		LOGE("AndroidBitmap_lockPixels() failed srcpixels! error=%d", ret);
+    	LOGE("AndroidBitmap_lockPixels() failed srcpixels! error=%d", ret);
     }
 
     if ((ret = AndroidBitmap_lockPixels(env, encryptbm, &encryptpixels)) < 0) {
@@ -186,13 +186,16 @@ JNIEXPORT void JNICALL Java_com_lb_imagesigner_JNIUtil_JNIUtils_imageEncrypt(
         int32_t *greenbufcount = (int32_t *)malloc(sizeof(int32_t) * chanelimage_width * chanelimage_height);
         int32_t *bluebufcount = (int32_t *)malloc(sizeof(int32_t) * chanelimage_width * chanelimage_height);
 
+        int32_t *half_signbmpixelsbuf = (int32_t*)malloc(sizeof(int32_t) * chanelimage_width * chanelimage_height /4);
 
 
-        for(int i=0;i<signimage_width;i++){
-            for(int j=0;j<signimage_height;j++){
+        /**/
+        for(int i=0;i<sourceheight;i++){
+            for(int j=0;j<sourcewidth;j++){
+
                 color = srcbmpixelsbuf[sourcewidth * i + j];
-                color = color | 0xFF000000;
                 destbmpixelsbuf[sourcewidth * i + j] = color;
+
             }
         }
 
@@ -204,15 +207,13 @@ JNIEXPORT void JNICALL Java_com_lb_imagesigner_JNIUtil_JNIUtils_imageEncrypt(
                 green = ((color & 0x0000FF00) >> 8);
                 red = color & 0x000000FF;
                 bluechanelbmpixelsbuf[chanelimage_width * i + j] = color & 0xFFFF0000;
-                bluebufcount[chanelimage_width * i + j] = red;
+                bluebufcount[chanelimage_width * i + j] = blue;
                 greenchanelbmpixelsbuf[chanelimage_width * i + j] = color & 0xFF00FF00;
                 greenbufcount[chanelimage_width * i + j] = green;
                 redchanelbmpixelsbuf[chanelimage_width * i + j] = color & 0xFF0000FF;
-                redbufcount[chanelimage_width * i + j] = blue;
+                redbufcount[chanelimage_width * i + j] = red;
            }
         }
-
-
 
         complex *pcplx;
         int *power,Max;float *Amp;float *mapScale;
@@ -221,23 +222,28 @@ JNIEXPORT void JNICALL Java_com_lb_imagesigner_JNIUtil_JNIUtils_imageEncrypt(
         pcplx=(complex *)malloc(sizeof(complex) * chanelimage_width * chanelimage_height);
         mapScale=(float *)malloc(sizeof(float) * chanelimage_width * chanelimage_height / 4);
 
+        //resize signimage
+        int resizeRate = 2;
+        for(int i = 0;i<signimage_height/2;i++){
+            int tsrcH = (int)(resizeRate * i + 0.5);
+            for(int j = 0;j<signimage_width/2;j++){
+                int tsrcW = (int)(resizeRate * j + 0.5);
+                half_signbmpixelsbuf[i * signimage_width/2 + j] = signbmpixelsbuf[tsrcH * signimage_width + tsrcW];
+                //destbmpixelsbuf[sourcewidth * i + j] = signbmpixelsbuf[tsrcH * signimage_width + tsrcW];
+            }
+        }
+
         //Initialize Map Scale
 
-        for(int i = 0; i < signimage_height/2; i++){
-            for(int j = 0; j < signimage_width/2; j++){
-                mapScale[signimage_width/2 * i + j] = signbmpixelsbuf[signimage_width/2 * i + j] & 0x00FFFFFF ? 1.0f / powervalue : 1.0f;
+        for(int i = 0; i < chanelimage_height/2; i++){
+            for(int j = 0; j < chanelimage_width/2; j++){
+                mapScale[chanelimage_width/2 * i + j] = signbmpixelsbuf[chanelimage_width/2 * i + j] & 0x00FFFFFF ? 1.0f/powervalue : 1.0f;
             }
         }/**/
 
-
-
         do{
            //Sort R
-          //   Max=0;
-
-             Max = ss;
-
-  /*           pcplx[0].im = 0;
+            Max=0;
 
              for(int i = 0; i < chanelimage_height; i++){
                  for(int j = 0; j < chanelimage_width; j++){
@@ -248,114 +254,295 @@ JNIEXPORT void JNICALL Java_com_lb_imagesigner_JNIUtil_JNIUtils_imageEncrypt(
                  }
              }
 
-             FFT_2(pcplx,pcplx,chanelimage_width);
+             FFT_2(pcplx,pcplx,chanelimage_height);
 
-             for(int y = 1; y < signimage_height/2-1; y++){
-                 for(int x = 1; x < signimage_width/2-1; x++){
-                     pcplx[y*signimage_width+x].re*=mapScale[y*signimage_width/2+x];
-                     pcplx[y*signimage_width+x].im*=mapScale[y*signimage_width/2+x];
+             for(int y = 1; y < chanelimage_height/2-1; y++){
+                 for(int x = 1; x < chanelimage_width/2-1; x++){
+                     pcplx[y*chanelimage_width+x].re*=mapScale[y*chanelimage_width/2+x];
+                     pcplx[y*chanelimage_width+x].im*=mapScale[y*chanelimage_width/2+x];
 
-                     pcplx[(signimage_width-y)*sourcewidth+signimage_width-x].re*=mapScale[y*signimage_width/2+x];
-                     pcplx[(signimage_width-y)*sourcewidth+signimage_width-x].im*=mapScale[y*signimage_width/2+x];
+                     pcplx[(chanelimage_width-y)*chanelimage_width+chanelimage_width-x].re*=mapScale[y*chanelimage_width/2+x];
+                     pcplx[(chanelimage_width-y)*chanelimage_width+chanelimage_width-x].im*=mapScale[y*chanelimage_width/2+x];
                  }
              }
 
-             FFT_2_Shift(pcplx,pcplx,signimage_height);
+             FFT_2_Shift(pcplx,pcplx,chanelimage_height);
 
-             for (int y=0;y<signimage_height;y++){
-             	for (int x=0;x<signimage_width;x++){
-                     power[y*signimage_height+x]=sqrt(pcplx[y*signimage_height+x].im*pcplx[y*signimage_height+x].im+pcplx[y*signimage_height+x].re+pcplx[y*signimage_height+x].re);
-                     if(pcplx[y*signimage_height+x].re*pcplx[y*signimage_height+x].re<0.00000001)
-                     	Amp[y*signimage_height+x]=0;
-                     else
-                     	Amp[y*signimage_height+x]=atan(pcplx[y*signimage_height+x].im/pcplx[y*signimage_height+x].re);
-                     //power[y*h+x]=log(long double(1+3*power[y*h+x]));
-                     double temp = (double)(1+3*power[y*signimage_height+x]);
-                     //power[y*sourceheight+x]=log(long double(1+3*power[y*sourceheight+x]));
-                     power[y*signimage_height+x]=log(temp);
-                     if (power[y*signimage_height+x]>Max)
-                     {
-                     	Max=power[y*signimage_height+x];
-                     }
+             for (int y=0;y<chanelimage_height;y++){
+             	for (int x=0;x<chanelimage_width;x++){
+             	    //power[y*h+x]=sqrt(pcplx[y*h+x].im*pcplx[y*h+x].im+pcplx[y*h+x].re+pcplx[y*h+x].re);
+                    power[y*chanelimage_height+x]=sqrt(pcplx[y*chanelimage_height+x].im*pcplx[y*chanelimage_height+x].im+pcplx[y*chanelimage_height+x].re+pcplx[y*chanelimage_height+x].re);
+
+                    //power[y*h+x]=log(long double(1+3*power[y*h+x]));
+                    power[y*chanelimage_height+x]=log((double)(1+3*power[y*chanelimage_height+x]));
+                    if (power[y*chanelimage_height+x] > Max)
+                    {
+                    	Max=power[y*chanelimage_height+x];
+                    }
                  }
              }
 
              if (Max == 0){
-                 for (int y=0;y<signimage_height;y++){
-                 	for (int x=0;x<signimage_width;x++){
+                 for (int y=0;y<chanelimage_height;y++){
+                 	for (int x=0;x<chanelimage_width;x++){
                  		//freqRedImage.setPixel(x,y,QColor(0,0,0).rgba());
-                         redsignpixelsbuf[y * signimage_width + x] = 0xFF000000;
+                         redsignpixelsbuf[y * chanelimage_width + x] = 0x00000000;
                  	}
                  }
              } else {
-                 for (int y=0;y<signimage_height;y++){
-                	for (int x=0;x<signimage_width;x++){
-                	    color = power[signimage_width * y + x];
-                         blue = ((color & 0x00FF0000) >> 16)*255/Max;
-                         green = ((color & 0x0000FF00) >> 8)*255/Max;
-                         red = color & 0x000000FF*255/Max;
-                		//freqRedImage.setPixel(x,y,QColor(power[y*h+x]*255/Max,power[y*h+x]*255/Max,power[y*h+x]*255/Max).rgba());
-                         redsignpixelsbuf[y * sourcewidth + x] = 0xFF000000|red|green|blue;
+                 for (int y=0;y<chanelimage_height;y++){
+                	for (int x=0;x<chanelimage_width;x++){
+                	    color = power[chanelimage_width * y + x];
+                        red = power[chanelimage_width * y + x] * 255 / Max;
+                        green = ((power[chanelimage_width * y + x] * 255 / Max) << 8)&0xFF00FF00;
+                        blue = ((power[chanelimage_width * y + x] * 255 / Max) << 16)&0xFFFF0000;
+
+                	    //freqRedImage.setPixel(x,y,QColor(power[y*h+x]*255/Max,power[y*h+x]*255/Max,power[y*h+x]*255/Max).rgba());
+
+                        redsignpixelsbuf[y * chanelimage_width + x] = 0xFF000000|blue|green|red;
                     }
                 }
              }
 
-             FFT_2_Shift(pcplx,pcplx,signimage_height);
-             IFFT_2(pcplx,pcplx,signimage_height);
+             FFT_2_Shift(pcplx,pcplx,chanelimage_height);
+             IFFT_2(pcplx,pcplx,chanelimage_height);
 
-             for (int y=0;y<signimage_height;y++)
+             for (int y=0;y<chanelimage_height;y++)
              {
-             		for (int x=0;x<signimage_width;x++)
+             		for (int x=0;x<chanelimage_height;x++)
              		{
-             			if(pcplx[y*signimage_height+x].re>255)
+             			if(pcplx[y*chanelimage_width+x].re>255)
              			{
              					//RedChannelImage.setPixel(x,y,QColor(255,0,0).rgba());
-             					redsignpixelsbuf[y * signimage_height +x] = 0xFFFF0000;
+             					redchanelbmpixelsbuf[y * chanelimage_height +x] = 0xFF0000FF;
              					continue;
              			}
 
-             			if(pcplx[y*signimage_height+x].re<0)
+             			if(pcplx[y*chanelimage_height+x].re<0)
              			{
              					//RedChannelImage.setPixel(x,y,QColor(0,0,0).rgba());
-             					redsignpixelsbuf[y * sourceheight +x] = 0xFFFF0000;
+             					redchanelbmpixelsbuf[y * chanelimage_height +x] = 0xFF000000;
              					continue;
              			}
 
              			//RedChannelImage.setPixel(x,y,QColor(pcplx[y*h+x].re,0,0).rgba());
-             			color = pcplx[signimage_height * y + x].re;
-             			redsignpixelsbuf[y * signimage_height +x] = color;
+             			color = pcplx[chanelimage_height * y + x].re;
+             			color = color | 0xFF000000;
+             			redchanelbmpixelsbuf[y * chanelimage_height +x] = color;
              		}
              }
 
+             //end Sort R
 
-             for (int y=0;y<signimage_height;y++){
-             	for (int x=0;x<signimage_width;x++){
-             	    color = redsignpixelsbuf[signimage_height * y + x];
-             	    blue = ((color & 0x00FF0000) >> 16);
+             //Sort G
+             Max=0;
 
-             	    color = greensignpixelsbuf[signimage_height * y + x];
-             	    green = ((color & 0x0000FF00) >> 8);
+             for(int i = 0; i < chanelimage_height; i++){
+                 for(int j = 0; j < chanelimage_width; j++){
+                     pcplx[i * chanelimage_width + j].im = 0;
+                     color = srcbmpixelsbuf[i * sourcewidth + j];
+                     green = color & 0x0000FF00;
+                     pcplx[i * chanelimage_width + j].re = green;
+                 }
+             }
 
-             	    color = bluesignpixelsbuf[signimage_height * y + x];
-                    red = color & 0x000000FF;
+             FFT_2(pcplx,pcplx,chanelimage_height);
 
-                    color = 0xFF000000 | red | green | blue;
-                    destbmpixelsbuf[y * signimage_height + x] = color;
+             for(int y = 1; y < chanelimage_height/2-1; y++){
+                 for(int x = 1; x < chanelimage_width/2-1; x++){
+                     pcplx[y*chanelimage_width+x].re*=mapScale[y*chanelimage_width/2+x];
+                     pcplx[y*chanelimage_width+x].im*=mapScale[y*chanelimage_width/2+x];
+
+                     pcplx[(chanelimage_width-y)*chanelimage_width+chanelimage_width-x].re*=mapScale[y*chanelimage_width/2+x];
+                     pcplx[(chanelimage_width-y)*chanelimage_width+chanelimage_width-x].im*=mapScale[y*chanelimage_width/2+x];
+                 }
+             }
+
+             FFT_2_Shift(pcplx,pcplx,chanelimage_height);
+
+             for (int y=0;y<chanelimage_height;y++){
+                for (int x=0;x<chanelimage_width;x++){
+                    //power[y*h+x]=sqrt(pcplx[y*h+x].im*pcplx[y*h+x].im+pcplx[y*h+x].re+pcplx[y*h+x].re);
+                    power[y*chanelimage_height+x]=sqrt(pcplx[y*chanelimage_height+x].im*pcplx[y*chanelimage_height+x].im+pcplx[y*chanelimage_height+x].re+pcplx[y*chanelimage_height+x].re);
+
+                    //power[y*h+x]=log(long double(1+3*power[y*h+x]));
+                    power[y*chanelimage_height+x]=log((double)(1+3*power[y*chanelimage_height+x]));
+                    if (power[y*chanelimage_height+x] > Max)
+                    {
+                        Max=power[y*chanelimage_height+x];
+                    }
+                 }
+             }
+
+             if (Max == 0){
+                 for (int y=0;y<chanelimage_height;y++){
+                    for (int x=0;x<chanelimage_width;x++){
+                        //freqRedImage.setPixel(x,y,QColor(0,0,0).rgba());
+                         greensignpixelsbuf[y * chanelimage_width + x] = 0x00000000;
+                    }
+                 }
+             } else {
+                 for (int y=0;y<chanelimage_height;y++){
+                    for (int x=0;x<chanelimage_width;x++){
+                        color = power[chanelimage_width * y + x];
+                        red = power[chanelimage_width * y + x] * 255 / Max;
+                        green = ((power[chanelimage_width * y + x] * 255 / Max) << 8)&0xFF00FF00;
+                        blue = ((power[chanelimage_width * y + x] * 255 / Max) << 16)&0xFFFF0000;
+
+                        //freqRedImage.setPixel(x,y,QColor(power[y*h+x]*255/Max,power[y*h+x]*255/Max,power[y*h+x]*255/Max).rgba());
+
+                        greensignpixelsbuf[y * chanelimage_width + x] = 0xFF000000|blue|green|red;
+                    }
+                }
+             }
+
+             FFT_2_Shift(pcplx,pcplx,chanelimage_height);
+             IFFT_2(pcplx,pcplx,chanelimage_height);
+
+             for (int y=0;y<chanelimage_height;y++)
+             {
+                    for (int x=0;x<chanelimage_height;x++)
+                    {
+                        if(pcplx[y*chanelimage_width+x].re>255)
+                        {
+                                //RedChannelImage.setPixel(x,y,QColor(255,0,0).rgba());
+                                greenchanelbmpixelsbuf[y * chanelimage_height +x] = 0xFF00FF00;
+                                continue;
+                        }
+
+                        if(pcplx[y*chanelimage_height+x].re<0)
+                        {
+                                //RedChannelImage.setPixel(x,y,QColor(0,0,0).rgba());
+                                greenchanelbmpixelsbuf[y * chanelimage_height +x] = 0xFF000000;
+                                continue;
+                        }
+
+                        //RedChannelImage.setPixel(x,y,QColor(pcplx[y*h+x].re,0,0).rgba());
+                        color = pcplx[chanelimage_height * y + x].re;
+                        color = color | 0xFF000000;
+                        greenchanelbmpixelsbuf[y * chanelimage_height +x] = color;
+                    }
+             }
+             //end Sort G
+
+             //sort B
+             Max=0;
+
+             for(int i = 0; i < chanelimage_height; i++){
+                 for(int j = 0; j < chanelimage_width; j++){
+                     pcplx[i * chanelimage_width + j].im = 0;
+                     color = srcbmpixelsbuf[i * sourcewidth + j];
+                     blue = color & 0x00FF0000;
+                     pcplx[i * chanelimage_width + j].re = blue;
+                 }
+             }
+
+             FFT_2(pcplx,pcplx,chanelimage_height);
+
+             for(int y = 1; y < chanelimage_height/2-1; y++){
+                 for(int x = 1; x < chanelimage_width/2-1; x++){
+                     pcplx[y*chanelimage_width+x].re*=mapScale[y*chanelimage_width/2+x];
+                     pcplx[y*chanelimage_width+x].im*=mapScale[y*chanelimage_width/2+x];
+
+                     pcplx[(chanelimage_width-y)*chanelimage_width+chanelimage_width-x].re*=mapScale[y*chanelimage_width/2+x];
+                     pcplx[(chanelimage_width-y)*chanelimage_width+chanelimage_width-x].im*=mapScale[y*chanelimage_width/2+x];
+                 }
+             }
+
+             FFT_2_Shift(pcplx,pcplx,chanelimage_height);
+
+             for (int y=0;y<chanelimage_height;y++){
+                for (int x=0;x<chanelimage_width;x++){
+                    //power[y*h+x]=sqrt(pcplx[y*h+x].im*pcplx[y*h+x].im+pcplx[y*h+x].re+pcplx[y*h+x].re);
+                    power[y*chanelimage_height+x]=sqrt(pcplx[y*chanelimage_height+x].im*pcplx[y*chanelimage_height+x].im+pcplx[y*chanelimage_height+x].re+pcplx[y*chanelimage_height+x].re);
+
+                    //power[y*h+x]=log(long double(1+3*power[y*h+x]));
+                    power[y*chanelimage_height+x]=log((double)(1+3*power[y*chanelimage_height+x]));
+                    if (power[y*chanelimage_height+x] > Max)
+                    {
+                        Max=power[y*chanelimage_height+x];
+                    }
+                 }
+             }
+
+             if (Max == 0){
+                 for (int y=0;y<chanelimage_height;y++){
+                    for (int x=0;x<chanelimage_width;x++){
+                        //freqRedImage.setPixel(x,y,QColor(0,0,0).rgba());
+                         bluesignpixelsbuf[y * chanelimage_width + x] = 0x00000000;
+                    }
+                 }
+             } else {
+                 for (int y=0;y<chanelimage_height;y++){
+                    for (int x=0;x<chanelimage_width;x++){
+                        color = power[chanelimage_width * y + x];
+                        red = power[chanelimage_width * y + x] * 255 / Max;
+                        green = ((power[chanelimage_width * y + x] * 255 / Max) << 8)&0xFF00FF00;
+                        blue = ((power[chanelimage_width * y + x] * 255 / Max) << 16)&0xFFFF0000;
+
+                        //freqRedImage.setPixel(x,y,QColor(power[y*h+x]*255/Max,power[y*h+x]*255/Max,power[y*h+x]*255/Max).rgba());
+
+                        bluesignpixelsbuf[y * chanelimage_width + x] = 0xFF000000|blue|green|red;
+                    }
+                }
+             }
+
+             FFT_2_Shift(pcplx,pcplx,chanelimage_height);
+             IFFT_2(pcplx,pcplx,chanelimage_height);
+
+             for (int y=0;y<chanelimage_height;y++)
+             {
+                    for (int x=0;x<chanelimage_height;x++)
+                    {
+                        if(pcplx[y*chanelimage_width+x].re>255)
+                        {
+                                //RedChannelImage.setPixel(x,y,QColor(255,0,0).rgba());
+                                bluechanelbmpixelsbuf[y * chanelimage_height +x] = 0xFFFF0000;
+                                continue;
+                        }
+
+                        if(pcplx[y*chanelimage_height+x].re<0)
+                        {
+                                //RedChannelImage.setPixel(x,y,QColor(0,0,0).rgba());
+                                bluechanelbmpixelsbuf[y * chanelimage_height +x] = 0xFF000000;
+                                continue;
+                        }
+
+                        //RedChannelImage.setPixel(x,y,QColor(pcplx[y*h+x].re,0,0).rgba());
+                        color = pcplx[chanelimage_height * y + x].re;
+                        color = color | 0xFF000000;
+                        bluechanelbmpixelsbuf[y * chanelimage_height +x] = color;
+                    }
+             }
+
+             //end sort B
+
+             //
+             for (int y=0;y<chanelimage_height;y++){
+             	for (int x=0;x<chanelimage_width;x++){
+             	    red = redchanelbmpixelsbuf[chanelimage_width * y + x];
+
+             	    green = greenchanelbmpixelsbuf[chanelimage_width * y + x];
+
+             	    blue = bluechanelbmpixelsbuf[chanelimage_width * y + x];
+
+                    destbmpixelsbuf[y * sourcewidth + x] = 0xFF000000 | blue | green | red;
 
              	}
-             }*/
+             }/**/
         }while(0);
 
 
         //release bitmap
         do{
-            //free(power);
-            //free(Amp);
-            //free(pcplx);
-            //free(mapScale);
+            free(power);
+            free(Amp);
+            free(pcplx);
+            free(mapScale);
             free(redbufcount);
             free(greenbufcount);
             free(bluebufcount);
+            free(half_signbmpixelsbuf);
             AndroidBitmap_unlockPixels(env, srcbm);
             AndroidBitmap_unlockPixels(env, signbm);
             AndroidBitmap_unlockPixels(env, destbm);

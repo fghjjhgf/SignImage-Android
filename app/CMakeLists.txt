@@ -24,7 +24,7 @@ add_library( # Sets the name of the library.
 
        #src/main/jni/com_lb_imagesigner_JNIUtil_JNIUtils.h
        src/main/jni/com_lb_imagesigner_JNIUtil_JNIUtils.c
-       #src/main/jni/Pt_FFT.c
+       src/main/jni/Pt_FFT.c
        #src/main/jni/Pt_FFT.h
        )
  

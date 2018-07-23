@@ -3,6 +3,7 @@ package com.lb.imagesigner.util;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -24,6 +25,7 @@ public class Text2Image {
 
         textPaint.setColor(Color.WHITE);
         textPaint.setTextSize(textHeight);
+        textPaint.setTypeface(Typeface.DEFAULT_BOLD);
         StaticLayout layout = new StaticLayout(text, textPaint,textWidth,
                 Layout.Alignment.ALIGN_CENTER, 1.0f, 1.0f, false);
 

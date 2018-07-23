@@ -9,6 +9,8 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,11 +27,15 @@ import com.lb.imagesigner.JNIUtil.JNIUtils;
 import com.lb.imagesigner.util.GetFilePath;
 import com.lb.imagesigner.util.Text2Image;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.UUID;
+
 public class MainActivity extends AppCompatActivity {
 
     private static String TAG = "MainActivity";
 
-    private Button createButton, selectButton, signButton;
+    private Button createButton, selectButton, signButton, savefileButton;
     private ImageView srcImageView, signImageView, redChanelImageView, blueChanelImageView, greenChanelImageView,
             signRedImageView, signBlueImageView, signGreenImageView, destImageView;
     private EditText editText;
@@ -95,21 +101,83 @@ public class MainActivity extends AppCompatActivity {
 
                 powerSeekbar.setMax(powerMax);
                 int power = powerSeekbar.getProgress() * powerMax;
+                Log.i(TAG,"power value is " + power);
                 JNIUtils.signImage(sourcebitmap,signbitmap,destbitmap,power,rgb_check,redchanelbm,greenchanelbm,bluechanelbm,signredbm,signgreenbm,signbluebm);
                 //JNIUtils.imageEncrypt(sourcebitmap,destbitmap);
 
                 redChanelImageView.setImageBitmap(redchanelbm);
                 greenChanelImageView.setImageBitmap(greenchanelbm);
                 blueChanelImageView.setImageBitmap(bluechanelbm);
+
+                signRedImageView.setImageBitmap(signredbm);
+                signGreenImageView.setImageBitmap(signgreenbm);
+                signBlueImageView.setImageBitmap(signbluebm);
+
                 destImageView.setImageBitmap(destbitmap);
             }
         });
+
+        savefileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                saveFile(destbitmap);
+
+                saveFile(signredbm);
+            }
+        });
+    }
+
+    private void saveFile(Bitmap bitmap){
+
+
+        String dir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/";
+
+        String fileName = UUID.randomUUID().toString();
+
+        //获取内部存储状态
+        String state = Environment.getExternalStorageState();
+        //如果状态不是mounted，无法读写
+        if (!state.equals(Environment.MEDIA_MOUNTED)) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                int REQUEST_EXTERNAL_STORAGE = 1;
+                String[] PERMISSIONS_STORAGE = {
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                //验证是否许可权限
+                int permission = ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                if (permission != PackageManager.PERMISSION_GRANTED) {
+                    // We don't have permission so prompt the user
+                    ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE,
+                            REQUEST_EXTERNAL_STORAGE);
+                }
+            }
+        }
+
+        try {
+            File filedir = new File(dir);
+            if (!filedir.exists()){
+                filedir.mkdirs();
+            }
+
+            File file = new File(dir + fileName + ".jpg");
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.flush();
+            out.close();
+            Uri uri = Uri.fromFile(file);
+            sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private void findView(){
         createButton = (Button)findViewById(R.id.create_signimage_button);
         selectButton = (Button)findViewById(R.id.select_button);
         signButton = (Button)findViewById(R.id.signButton);
+        savefileButton = (Button)findViewById(R.id.savefileButton);
 
         srcImageView = (ImageView)findViewById(R.id.source_imageview);
         signImageView = (ImageView)findViewById(R.id.sign_imageview);

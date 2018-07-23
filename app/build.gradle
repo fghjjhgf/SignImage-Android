@@ -16,6 +16,9 @@ android {
                 //abiFilters 'arm64-v8a','armeabi-v7a'
             }
         }
+        ndk {
+            ldLibs "log"//实现__android_log_print
+        }
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {

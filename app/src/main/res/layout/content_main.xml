@@ -113,6 +113,13 @@
                 android:layout_height="wrap_content"
                 android:text="签名" />
 
+            <Button
+                android:id="@+id/savefileButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="保存文件" />
+
+
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
