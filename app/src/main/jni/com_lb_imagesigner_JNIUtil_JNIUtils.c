@@ -341,7 +341,7 @@ JNIEXPORT void JNICALL Java_com_lb_imagesigner_JNIUtil_JNIUtils_imageEncrypt(
                  for(int j = 0; j < chanelimage_width; j++){
                      pcplx[i * chanelimage_width + j].im = 0;
                      color = srcbmpixelsbuf[i * sourcewidth + j];
-                     green = color & 0x0000FF00;
+                     green = (color & 0x0000FF00) >> 8;
                      pcplx[i * chanelimage_width + j].re = green;
                  }
              }
@@ -384,10 +384,10 @@ JNIEXPORT void JNICALL Java_com_lb_imagesigner_JNIUtil_JNIUtils_imageEncrypt(
              } else {
                  for (int y=0;y<chanelimage_height;y++){
                     for (int x=0;x<chanelimage_width;x++){
-                        color = power[chanelimage_width * y + x];
-                        red = power[chanelimage_width * y + x] * 255 / Max;
-                        green = ((power[chanelimage_width * y + x] * 255 / Max) << 8)&0xFF00FF00;
-                        blue = ((power[chanelimage_width * y + x] * 255 / Max) << 16)&0xFFFF0000;
+                        color = power[chanelimage_height * y + x];
+                        red = color * 255 / Max;
+                        green = ((color * 255 / Max) << 8)&0xFF00FF00;
+                        blue = ((color * 255 / Max) << 16)&0xFFFF0000;
 
                         //freqRedImage.setPixel(x,y,QColor(power[y*h+x]*255/Max,power[y*h+x]*255/Max,power[y*h+x]*255/Max).rgba());
 
@@ -419,8 +419,8 @@ JNIEXPORT void JNICALL Java_com_lb_imagesigner_JNIUtil_JNIUtils_imageEncrypt(
 
                         //RedChannelImage.setPixel(x,y,QColor(pcplx[y*h+x].re,0,0).rgba());
                         color = pcplx[chanelimage_height * y + x].re;
-                        color = color | 0xFF000000;
-                        greenchanelbmpixelsbuf[y * chanelimage_height +x] = color;
+                        color = (color << 8)&0x0000FF00;
+                        greenchanelbmpixelsbuf[y * chanelimage_height +x] = color | 0xFF000000;
                     }
              }
              //end Sort G
@@ -432,7 +432,7 @@ JNIEXPORT void JNICALL Java_com_lb_imagesigner_JNIUtil_JNIUtils_imageEncrypt(
                  for(int j = 0; j < chanelimage_width; j++){
                      pcplx[i * chanelimage_width + j].im = 0;
                      color = srcbmpixelsbuf[i * sourcewidth + j];
-                     blue = color & 0x00FF0000;
+                     blue = (color & 0x00FF0000) >> 16;
                      pcplx[i * chanelimage_width + j].re = blue;
                  }
              }
@@ -510,8 +510,8 @@ JNIEXPORT void JNICALL Java_com_lb_imagesigner_JNIUtil_JNIUtils_imageEncrypt(
 
                         //RedChannelImage.setPixel(x,y,QColor(pcplx[y*h+x].re,0,0).rgba());
                         color = pcplx[chanelimage_height * y + x].re;
-                        color = color | 0xFF000000;
-                        bluechanelbmpixelsbuf[y * chanelimage_height +x] = color;
+                        color = (color <<16) & 0x00FF0000;
+                        bluechanelbmpixelsbuf[y * chanelimage_height +x] = color | 0xFF000000;
                     }
              }
 
