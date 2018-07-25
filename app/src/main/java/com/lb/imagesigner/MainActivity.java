@@ -29,7 +29,6 @@ import com.lb.imagesigner.util.Text2Image;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -132,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
         String dir = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Download/";
 
-        String fileName = UUID.randomUUID().toString();
+        String fileName = "" + System.currentTimeMillis();
 
         //获取内部存储状态
         String state = Environment.getExternalStorageState();
@@ -240,6 +239,13 @@ public class MainActivity extends AppCompatActivity {
                     sourcebitmap = BitmapFactory.decodeFile(path);
                     destbitmap = Bitmap.createBitmap(sourcebitmap.getWidth(),sourcebitmap.getHeight(), Bitmap.Config.ARGB_8888);
                     srcImageView.setImageBitmap(sourcebitmap);
+                    JNIUtils.displaySourcImage(sourcebitmap,redchanelbm,greenchanelbm,bluechanelbm,signredbm,signgreenbm,signbluebm);
+                    redChanelImageView.setImageBitmap(redchanelbm);
+                    greenChanelImageView.setImageBitmap(greenchanelbm);
+                    blueChanelImageView.setImageBitmap(bluechanelbm);
+                    signRedImageView.setImageBitmap(signredbm);
+                    signGreenImageView.setImageBitmap(signgreenbm);
+                    signBlueImageView.setImageBitmap(signbluebm);
                     destImageView.setImageBitmap(destbitmap);
                 }
             }
